@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V2Ray Config Tools</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --success: #22c55e;
+            --bg: #0f172a;
+            --card: rgba(255,255,255,0.08);
+            --border: rgba(148,163,184,0.2);
+            --text: #e2e8f0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Vazirmatn', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 20px; padding-bottom: 110px; }
+
+        header {
+            text-align: center;
+            padding: 2.5rem 0 2rem;
+        }
+
+        .logo {
+            width: 85px;
+            height: 85px;
+            filter: drop-shadow(0 10px 20px rgba(99, 102, 241, 0.4));
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-top: 12px;
+        }
+
+        .card {
+            background: var(--card);
+            backdrop-filter: blur(20px);
+            border-radius: 28px;
+            padding: 32px;
+            margin-bottom: 28px;
+            border: 1px solid var(--border);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-title {
+            font-size: 1.65rem;
+            margin-bottom: 24px;
+            color: white;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 10px;
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        textarea, input {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.7);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            padding: 18px;
+            color: var(--text);
+            font-size: 1.05rem;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 5px rgba(99, 102, 241, 0.25);
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 28px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 18px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .section {
+            display: none;
+            animation: fade 0.35s ease forwards;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fade {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 28px 0;
+        }
+
+        .output-box {
+            margin-top: 20px;
+        }
+
+        .output-box label {
+            display: block;
+            margin-bottom: 10px;
+            color: #cbd5e1;
+        }
+
+        /* Bottom Navigation */
+        .nav-bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(15, 23, 42, 0.96);
+            backdrop-filter: blur(24px);
+            border-top-left-radius: 28px;
+            border-top-right-radius: 28px;
+            border-top: 1px solid rgba(148,163,184,0.2);
+            padding: 14px 20px 18px;
+            box-shadow: 0 -15px 40px rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            flex: 1;
+            max-width: 170px;
+            padding: 14px 10px;
+            border: none;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.08);
+            color: white;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: translateY(-6px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.5);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--success);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 9999px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(34, 197, 94, 0.4);
+            z-index: 1100;
+            animation: toastAnim 2.5s forwards;
+        }
+
+        @keyframes toastAnim {
+            0% { opacity: 0; transform: translate(-50%, 20px); }
+            10% { opacity: 1; transform: translate(-50%, 0); }
+            90% { opacity: 1; }
+            100% { opacity: 0; transform: translate(-50%, -10px); }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            color: #64748b;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <svg width="92" height="92" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo">
+                <circle cx="100" cy="100" r="82" stroke="url(#grad)" stroke-width="20"/>
+                <path d="M65 78 L90 130 L135 72" stroke="#fff" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+                <defs>
+                    <linearGradient id="grad" x1="30" y1="30" x2="170" y2="170" gradientUnits="userSpaceOnUse">
+                        <stop offset="0%" stop-color="#6366f1"/>
+                        <stop offset="100%" stop-color="#a855f7"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            <h1>V2Ray Config Tools</h1>
+        </header>
+
+        <!-- Address Changer -->
+        <div id="section-0" class="section active">
+            <div class="card">
+                <h2 class="card-title">تغییر آدرس</h2>
+                
+                <label class="input-label">کانفیگ‌های ورودی</label>
+                <textarea id="input-address" rows="11" placeholder="vless://...&#10;trojan://..."></textarea>
+
+                <label class="input-label" style="margin-top:24px;">آدرس‌های جدید (هر خط یکی)</label>
+                <textarea id="new-address" rows="7" placeholder="example.com&#10;1.1.1.1&#10;2001:db8::1&#10;cdn.google.com"></textarea>
+
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="replaceAddress()">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                        جایگزینی آدرس
+                    </button>
+                    <button class="btn btn-secondary" onclick="copyOutput(0)">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16v-4m4 4v4m4-8v8m4-4v-4m-16 8h16a2 2 0 002-2V6a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        کپی خروجی
+                    </button>
+                    <button class="btn btn-secondary" onclick="clearAll(0)">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.595 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.595-1.858L5 7m5-4v6m4-6v6m1-10V9a1 1 0 00-1 1v1M5 7h14"/></svg>
+                        پاک کردن
+                    </button>
+                </div>
+
+                <div class="output-box">
+                    <label class="input-label">خروجی</label>
+                    <textarea id="output-address" rows="13" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rename Remarks -->
+        <div id="section-1" class="section">
+            <div class="card">
+                <h2 class="card-title">تغییر نام Remarks</h2>
+                
+                <label class="input-label">کانفیگ‌های ورودی</label>
+                <textarea id="input-remark" rows="13" placeholder="کانفیگ‌ها را اینجا قرار دهید..."></textarea>
+
+                <label class="input-label" style="margin-top:24px;">نام جدید</label>
+                <input type="text" id="new-remark" placeholder="My Server - IR" style="padding:18px;">
+
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="renameRemarks()">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                        تغییر نام همه
+                    </button>
+                    <button class="btn btn-secondary" onclick="copyOutput(1)">کپی خروجی</button>
+                    <button class="btn btn-secondary" onclick="clearAll(1)">پاک کردن</button>
+                </div>
+
+                <div class="output-box">
+                    <label class="input-label">خروجی</label>
+                    <textarea id="output-remark" rows="13" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Support -->
+        <div id="section-2" class="section">
+            <div class="card">
+                <h2 class="card-title">درباره برنامه</h2>
+                <div style="text-align:center;padding:30px 0;">
+
+    <p style="font-size:1.4rem;margin:15px 0;">
+        V2Ray Config Tools
+    </p>
+
+    <p style="color:var(--primary);font-size:1.3rem;">
+        نسخه ۲.۰
+    </p>
+
+    <p style="margin:25px 0 10px;">
+        توسعه یافته توسط <strong>جاوا</strong>
+    </p>
+
+    <div style="display:flex;justify-content:center;align-items:center;gap:8px;">
+
+        <svg xmlns="http://www.w3.org/2000/svg"
+             width="18"
+             height="18"
+             viewBox="0 0 24 24"
+             fill="#229ED9">
+
+            <path d="M9.993 15.672l-.396 5.58c.567 0 .813-.243 1.108-.534l2.664-2.55 5.52 4.041c1.011.558 1.731.264 2.004-.936l3.636-17.04c.321-1.497-.54-2.082-1.526-1.715L1.62 10.68c-1.458.567-1.437 1.38-.249 1.744l5.46 1.704L19.5 6.48c.597-.396 1.14-.177.693.219"/>
+        </svg>
+
+        <a href="https://t.me/Config0plus"
+           target="_blank"
+           style="color:#60a5fa;text-decoration:none;font-size:1.05rem;">
+            https://t.me/Config0plus
+        </a>
+
+    </div>
+
+</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="nav-bottom">
+        <button class="nav-btn active" onclick="showSection(0)">
+            <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1v-5m10-10l2 2m-2-2v10a1 1 0 01-1 1v-5m-6 0a1 1 0 001-1v5"/></svg>
+            <span>Address</span>
+        </button>
+        <button class="nav-btn" onclick="showSection(1)">
+            <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2v-5m6-7v7m0-7h5a2 2 0 012 2v11a2 2 0 01-2 2v-5m-6 0h-5"/></svg>
+            <span>Remarks</span>
+        </button>
+        <button class="nav-btn" onclick="showSection(2)">
+            <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-4m0-4v.01"/></svg>
+            <span>Support</span>
+        </button>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7"/></svg>
+        <span>کپی شد</span>
+    </div>
+
+    <script>
+        // Cache DOM elements
+        const sections = {
+            0: document.getElementById('section-0'),
+            1: document.getElementById('section-1'),
+            2: document.getElementById('section-2')
+        };
+
+        const outputs = {
+            0: document.getElementById('output-address'),
+            1: document.getElementById('output-remark')
+        };
+
+        // Show Section
+        function showSection(n) {
+            Object.values(sections).forEach(s => s.classList.remove('active'));
+            sections[n].classList.add('active');
+
+            document.querySelectorAll('.nav-btn').forEach((btn, i) => {
+                btn.classList.toggle('active', i === n);
+            });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Toast
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.style.display = 'flex';
+            setTimeout(() => toast.style.display = 'none', 2500);
+        }
+
+        // Copy Output
+        function copyOutput(section) {
+            const text = outputs[section].value.trim();
+            if (!text) return;
+            navigator.clipboard.writeText(text).then(showToast);
+        }
+
+        // Clear All
+        function clearAll(section) {
+            if (section === 0) {
+                document.getElementById('input-address').value = '';
+                document.getElementById('new-address').value = '';
+                outputs[0].value = '';
+            } else {
+                document.getElementById('input-remark').value = '';
+                document.getElementById('new-remark').value = '';
+                outputs[1].value = '';
+            }
+        }
+
+        // Advanced Address Replacer
+        function replaceAddress() {
+            const configs = document.getElementById('input-address').value.trim().split('\n').filter(Boolean);
+            const newAddrs = document.getElementById('new-address').value.trim().split('\n').filter(Boolean);
+            const output = outputs[0];
+
+            if (!configs.length || !newAddrs.length) {
+                alert('لطفاً کانفیگ و حداقل یک آدرس جدید وارد کنید');
+                return;
+            }
+
+            let result = [];
+
+            for (let config of configs) {
+                for (let newHost of newAddrs) {
+                    if (!config.startsWith('vless://') && !config.startsWith('trojan://')) {
+                        result.push(config);
+                        continue;
+                    }
+
+                    try {
+                        const protocolEnd = config.indexOf('://') + 3;
+                        const protocol = config.substring(0, protocolEnd);
+                        const rest = config.substring(protocolEnd);
+
+                        const atIndex = rest.indexOf('@');
+                        if (atIndex === -1) {
+                            result.push(config);
+                            continue;
+                        }
+
+                        const userInfo = rest.substring(0, atIndex);
+                        const afterAt = rest.substring(atIndex + 1);
+
+                        // Find end of authority
+                        const queryOrHash = Math.min(
+                            afterAt.indexOf('?') !== -1 ? afterAt.indexOf('?') : Infinity,
+                            afterAt.indexOf('#') !== -1 ? afterAt.indexOf('#') : Infinity
+                        );
+
+                        const authority = queryOrHash === Infinity ? afterAt : afterAt.substring(0, queryOrHash);
+                        const remaining = queryOrHash === Infinity ? '' : afterAt.substring(queryOrHash);
+
+                        // Preserve port
+                        let newAuthority = newHost;
+                        if (authority.includes(':')) {
+                            const port = authority.split(':').pop();
+                            if (!isNaN(port) && port.length > 0) {
+                                newAuthority += ':' + port;
+                            }
+                        }
+
+                        result.push(protocol + userInfo + '@' + newAuthority + remaining);
+                    } catch (e) {
+                        result.push(config);
+                    }
+                }
+            }
+
+            output.value = result.join('\n');
+        }
+
+        function renameRemarks() {
+    const input = document.getElementById('input-remark').value;
+    const newRemark = document.getElementById('new-remark').value.trim() || "Config";
+    const output = outputs[1];
+
+    if (!input.trim()) {
+        alert("لطفاً کانفیگ وارد کنید");
+        return;
+    }
+
+    const protocols = [
+        "vless://",
+        "trojan://",
+        "vmess://",
+        "ss://",
+        "ssr://"
+    ];
+
+    const result = [];
+
+    input.split(/\r?\n/).forEach(line => {
+
+        line = line.trim();
+
+        if (!line) return;
+
+        let config = null;
+
+        for (const p of protocols) {
+            const index = line.indexOf(p);
+            if (index !== -1) {
+                config = line.substring(index).trim();
+                break;
+            }
+        }
+
+        if (!config) return;
+
+        const hash = config.indexOf("#");
+
+        if (hash !== -1) {
+            config = config.substring(0, hash);
+        }
+
+        config += "#" + encodeURIComponent(newRemark);
+
+        result.push(config);
+
+    });
+
+    output.value = result.join("\n");
+}
+
+        // Initialize
+        console.log('%cV2Ray Config Tools v2.0 آماده شد', 'color:#a855f7; font-size:14px; font-weight:bold;');
+    </script>
+</body>
+</html>
